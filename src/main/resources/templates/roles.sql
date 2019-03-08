@@ -1,0 +1,4 @@
+INSERT INTO regra(descricao) VALUES('ROLE_CUSTOMER');
+INSERT INTO regra(descricao) VALUES('ROLE_AGENT');
+INSERT INTO regra(descricao) VALUES('ROLE_MANAGER');
+INSERT INTO regra(descricao) VALUES('ROLE_ADMIN');
