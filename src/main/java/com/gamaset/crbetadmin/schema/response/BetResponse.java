@@ -8,12 +8,15 @@ import java.util.List;
 import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.gamaset.crbetadmin.repository.entity.BetModel;
 import com.gamaset.crbetadmin.repository.entity.BetStatusEnum;
 import com.gamaset.crbetadmin.repository.entity.CustomerModel;
 import com.gamaset.crbetadmin.repository.entity.EventModel;
-import com.gamaset.crbetadmin.schema.EventBet;
+import com.gamaset.crbetadmin.schema.EventSchema;
 
+@JsonPropertyOrder({"id", "hashId", "totalOdd", "betValue", "profit", "expectedValueDiscountCommission", "commissionPercent", "commissionValue", 
+	"status", "createdDate", "updatedDate", "customer", "events"})
 public class BetResponse {
 
 	private Long id;
@@ -25,9 +28,9 @@ public class BetResponse {
 	private BigDecimal commissionPercent;
 	private BigDecimal profit;
 	private Double totalOdd;
-	@JsonFormat(shape = JsonFormat.Shape.NUMBER)
+//	@JsonFormat(shape = JsonFormat.Shape.NUMBER)
 	private BetStatusEnum status;
-	private List<EventBet> events;
+	private List<EventSchema> events;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
 	private LocalDateTime createdDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
@@ -60,7 +63,7 @@ public class BetResponse {
 
 		if (!CollectionUtils.isEmpty(eventsModel)) {
 			eventsModel.stream().forEach(e -> {
-				events.add(new EventBet(e));
+				events.add(new EventSchema(e));
 			});
 		}
 	}
@@ -145,11 +148,11 @@ public class BetResponse {
 		this.status = status;
 	}
 
-	public List<EventBet> getEvents() {
+	public List<EventSchema> getEvents() {
 		return events;
 	}
 
-	public void setEvents(List<EventBet> events) {
+	public void setEvents(List<EventSchema> events) {
 		this.events = events;
 	}
 

@@ -1,6 +1,7 @@
 package com.gamaset.crbetadmin.service;
 
 import static com.gamaset.crbetadmin.infra.log.LogEvent.create;
+import static com.gamaset.crbetadmin.infra.utils.CPFValidator.isValid;
 import static com.gamaset.crbetadmin.infra.utils.UserProfileUtils.isAdmin;
 import static com.gamaset.crbetadmin.repository.entity.BetStatusEnum.CANCELLED;
 import static com.gamaset.crbetadmin.repository.entity.BetStatusEnum.LOSE;
@@ -124,9 +125,9 @@ public class BetService {
 
 		List<BetModel> bets = null;
 		if (isAdmin(principle)) {
-			bets = (List<BetModel>) betRepository.findAll();
+			bets = (List<BetModel>) betRepository.findAllOrderByCreateAtDesc();
 		} else if (UserProfileUtils.isAdminOrAgent(principle)) {
-			bets = (List<BetModel>) betRepository.findByCustomerAgentId(principle.getId());
+			bets = (List<BetModel>) betRepository.findByCustomerAgentIdOrderByCreateAtDesc(principle.getId());
 		} else {
 			LOG_ERROR.error(create("Perfil de Usuario não pode acessar esses dados.").build());
 			throw new BusinessException("Perfil de Usuario não pode acessar esses dados.");
@@ -217,6 +218,7 @@ public class BetService {
 		try {
 			requireNonNull(request);
 			requireNonNull(request.getTaxId(), "CPF não pode ser nulo");
+			isTrue(isValid(request.getTaxId()), "CPF Inválido");
 			requireNonNull(request.getBetValue(), "Valor da aposta não pode ser nulo");
 			requireNonNull(request.getEvents(), "Lista de Eventos não pode ser nulo");
 			isTrue(request.getEvents().size() >= 2, "Lista de Eventos deve conter no minimo 2 eventos");

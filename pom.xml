@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.gamaset</groupId>
-	<artifactId>crbet-admin</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>crbet-admin</name>
+	<artifactId>crbets-admin-api</artifactId>
+	<version>1.0.0</version>
+	<name>crbets-admin-api</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>

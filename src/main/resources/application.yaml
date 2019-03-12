@@ -1,8 +1,9 @@
+spring.profiles.active: prod
 spring:
   application:
     name: crbet-admin-api
   dataSource:
-    url: "jdbc:mysql://localhost:3306/crbet_admin?useTimezone=true&serverTimezone=UTC"
+    url: "jdbc:mysql://localhost:3306/crbet_admin?useTimezone=true&serverTimezone=America/Sao_Paulo"
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -31,8 +32,18 @@ betwin:
     
 ---
 spring:
+  profiles: dev
+  dataSource:
+    url: "jdbc:mysql://gamasetdb.cjghoaa1m0um.us-east-1.rds.amazonaws.com:3306/crbet_admin_dev?useTimezone=true&serverTimezone=America/Sao_Paulo"
+    username: gamasetdb
+    password: '#gamasetdb2019'
+
+---
+server:
+  port: 8180
+spring:
   profiles: prod
   dataSource:
-    url: "jdbc:mysql://gamasetdb.cjghoaa1m0um.us-east-1.rds.amazonaws.com:3306/crbet_admin_dev?useTimezone=true&serverTimezone=UTC"
+    url: "jdbc:mysql://gamasetdb.cjghoaa1m0um.us-east-1.rds.amazonaws.com:3306/crbet_admin_prod?useTimezone=true&serverTimezone=America/Sao_Paulo"
     username: gamasetdb
     password: '#gamasetdb2019'

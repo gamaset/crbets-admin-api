@@ -26,6 +26,9 @@ public class EventModel {
 	@Column(name = "evento_descricao", nullable = false)
 	private String eventName;
 
+	@Column(name = "data_evento", nullable = false)
+	private String eventDate;
+
 	@JoinColumn(name = "id_competicao_fk", nullable = false)
 	@ManyToOne
 	private CompetitionModel competition;
@@ -86,8 +89,17 @@ public class EventModel {
 		this.market = market;
 	}
 
+	public String getEventDate() {
+		return eventDate;
+	}
+
+	public void setEventDate(String eventDate) {
+		this.eventDate = eventDate;
+	}
+
 //	@Override
 //	public String toString() {
 //		return ToStringBuilder.reflectionToString(this);
 //	}
+	
 }

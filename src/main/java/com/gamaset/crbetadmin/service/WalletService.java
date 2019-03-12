@@ -24,6 +24,7 @@ import com.gamaset.crbetadmin.repository.entity.AgentModel;
 import com.gamaset.crbetadmin.repository.entity.WalletModel;
 import com.gamaset.crbetadmin.repository.entity.WalletStatusEnum;
 import com.gamaset.crbetadmin.schema.request.ManagerRequest;
+import com.gamaset.crbetadmin.schema.request.WalletUpdateStatusRequest;
 
 @Service
 public class WalletService {
@@ -61,6 +62,21 @@ public class WalletService {
 		}
 		
 		return wallets;
+	}
+	
+	public void updateStatus(Long walletId, WalletUpdateStatusRequest request) {
+		Optional<WalletModel> balanceOpt = walletRepository.findById(walletId);
+		
+		if(!balanceOpt.isPresent()) {
+			LOG_ERROR.info(create("Carteira não encontrada").add("walletId", walletId).build());
+			throw new NotFoundException("Carteira não encontrada.");
+		}
+		
+		WalletModel wallet = balanceOpt.get();
+		wallet.setStatus(WalletStatusEnum.valueOf(request.getStatus()).get());
+		
+		walletRepository.save(wallet);
+		
 	}
 
 //	@Transactional

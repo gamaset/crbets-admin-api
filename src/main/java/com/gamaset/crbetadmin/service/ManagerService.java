@@ -1,7 +1,9 @@
 package com.gamaset.crbetadmin.service;
 
 import static com.gamaset.crbetadmin.infra.log.LogEvent.create;
+import static com.gamaset.crbetadmin.infra.utils.CPFValidator.isValid;
 import static java.util.Objects.requireNonNull;
+import static org.springframework.util.Assert.isTrue;
 
 import java.util.List;
 
@@ -62,9 +64,10 @@ public class ManagerService {
 			requireNonNull(request.getName(), "Nome não pode ser nulo");
 			requireNonNull(request.getPassword(), "Senha não pode ser nulo");
 			requireNonNull(request.getTaxId(), "CPF não pode ser nulo");
+			isTrue(isValid(request.getTaxId()), "CPF Inválido");
 			requireNonNull(request.getUsername(), "Nome de Usuario não pode ser nulo");
-		} catch (NullPointerException nEx) {
-			throw new BusinessException(nEx.getMessage());
+		} catch (NullPointerException | IllegalArgumentException e) {
+			throw new BusinessException(e.getMessage());
 		}
 
 	}

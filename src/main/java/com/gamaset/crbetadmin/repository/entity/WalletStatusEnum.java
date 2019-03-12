@@ -9,20 +9,23 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public enum WalletStatusEnum {
 
 	CLOSED("Encerrada"), OPEN("Aberto");
-	
+
+	private int id;
 	private String description;
 
 	private WalletStatusEnum(String description) {
 		this.description = description;
 	}
 
+	public int getId() {
+		return this.ordinal();
+	}
+
 	public String getDescription() {
 		return description;
 	}
 
-    public static Optional<WalletStatusEnum> valueOf(int statusId) {
-        return Arrays.stream(values())
-            .filter(status -> status.ordinal() == statusId)
-            .findFirst();
-    }
+	public static Optional<WalletStatusEnum> valueOf(int statusId) {
+		return Arrays.stream(values()).filter(status -> status.ordinal() == statusId).findFirst();
+	}
 }

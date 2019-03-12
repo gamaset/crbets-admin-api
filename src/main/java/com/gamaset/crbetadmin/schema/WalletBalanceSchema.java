@@ -17,6 +17,8 @@ public class WalletBalanceSchema {
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
 	private LocalDateTime lastDateUpdate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
+	private LocalDateTime createdDate;
 
 	public WalletBalanceSchema() {
 	}
@@ -29,9 +31,9 @@ public class WalletBalanceSchema {
 		setTotalCommissionAmount(walletBalance.getTotalCommissionAmount());
 		setWallet(new WalletSchema(walletBalance.getWallet()));
 		setLastDateUpdate(walletBalance.getUpdateAt());
+		setCreatedDate(walletBalance.getCreateAt());
 	}
 
-	
 	public LocalDateTime getLastDateUpdate() {
 		return lastDateUpdate;
 	}
@@ -86,6 +88,14 @@ public class WalletBalanceSchema {
 
 	public void setWallet(WalletSchema wallet) {
 		this.wallet = wallet;
+	}
+
+	public LocalDateTime getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(LocalDateTime createdDate) {
+		this.createdDate = createdDate;
 	}
 
 }

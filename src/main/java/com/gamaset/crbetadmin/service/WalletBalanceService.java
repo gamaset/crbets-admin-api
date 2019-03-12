@@ -113,7 +113,6 @@ public class WalletBalanceService {
 		WalletBalanceHistoryModel history = new WalletBalanceHistoryModel(balanceBefore, balanceActual);
 		walletBalanceHistoryRepository.save(history);
 	}
-	
-	
+
 	
 }

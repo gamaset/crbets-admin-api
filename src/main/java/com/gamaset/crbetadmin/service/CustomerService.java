@@ -1,7 +1,9 @@
 package com.gamaset.crbetadmin.service;
 
 import static com.gamaset.crbetadmin.infra.log.LogEvent.create;
+import static com.gamaset.crbetadmin.infra.utils.CPFValidator.isValid;
 import static java.util.Objects.requireNonNull;
+import static org.springframework.util.Assert.isTrue;
 
 import java.util.Date;
 import java.util.List;
@@ -88,10 +90,11 @@ public class CustomerService {
 			requireNonNull(request.getEmail(), "Email não pode ser nulo");
 			requireNonNull(request.getName(), "Nome não pode ser nulo");
 			requireNonNull(request.getTaxId(), "CPF não pode ser nulo");
+			isTrue(isValid(request.getTaxId()), "CPF Inválido");
 			request.setPassword("");
 			request.setUsername(String.valueOf(new Date().getTime()));
-		}catch (NullPointerException e) {
-			throw new BusinessException(e);
+		}catch (NullPointerException | IllegalArgumentException e) {
+			throw new BusinessException(e.getMessage());
 		}
 	}
 }
