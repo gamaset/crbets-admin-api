@@ -12,4 +12,6 @@ public interface CompetitionRepository extends PagingAndSortingRepository<Compet
 
 	List<CompetitionModel> findAllByOrderByEventTypeIdAscDescriptionAsc();
 
+	List<CompetitionModel> findByEventTypeId(Long eventTypeId);
+
 }

@@ -17,9 +17,11 @@ spring:
 server:
   port: 8080
   servlet:
-    context-path: /betwin-admin
+    context-path: /crbets-admin
 #security:
 #  sessions: NEVER
+logging:
+  config: classpath:log4j2.xml
   
 
 # app params

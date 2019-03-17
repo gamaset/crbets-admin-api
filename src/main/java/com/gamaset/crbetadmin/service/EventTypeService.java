@@ -5,6 +5,8 @@ import static com.gamaset.crbetadmin.infra.log.LogEvent.create;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,10 +25,12 @@ public class EventTypeService {
 	private static final Logger LOG_ERROR = LogEvent.logger("ERROR");
 	
 	private EventTypeRepository eventTypeRepository;
+	private CompetitionService competitionService;
 
 	@Autowired
-	public EventTypeService(EventTypeRepository eventTypeRepository) {
+	public EventTypeService(EventTypeRepository eventTypeRepository, CompetitionService competitionService) {
 		this.eventTypeRepository = eventTypeRepository;
+		this.competitionService = competitionService;
 	}
 	
 	
@@ -36,7 +40,7 @@ public class EventTypeService {
 		try {
 			LOG_ACTION.error(create("Listando Tipos de Evento").build());
 			
-			response = (List<EventTypeModel>) eventTypeRepository.findAll();
+			response = (List<EventTypeModel>) eventTypeRepository.findAllByOrderByIdAsc();
 			
 		}catch (Exception e) {
 			LOG_ERROR.error(create("Erro ao Listar Tipos de Evento").build());
@@ -46,7 +50,7 @@ public class EventTypeService {
 		return response;
 	}
 
-	
+	@Transactional
 	public void updateStatus(Long eventTypeId, FlagBooleanUpdateStatusRequest request) {
 		try {
 			LOG_ACTION.error(create("Atualizando Status do Tipo de Evento").add("eventTypeId", eventTypeId).add("status", request.isStatus()).build());
@@ -60,8 +64,9 @@ public class EventTypeService {
 			
 			EventTypeModel eventTypeModel = eventTypeOpt.get();
 			eventTypeModel.setActive(request.isStatus());
-			
 			eventTypeRepository.save(eventTypeModel);
+
+			competitionService.changeStatusForAllCompetitions(eventTypeId, request.isStatus());
 			
 		}catch (Exception e) {
 			LOG_ERROR.error(create("Erro ao Atualizar o Tipo de Evento").build());

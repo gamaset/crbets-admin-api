@@ -5,7 +5,7 @@ import java.security.SecureRandom;
 public class HashUtils {
 
 	public static String generateHashId() {
-		String hash = "BET";
+		String hash = "CR";
 		int len = 10;
 		char[] ch = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
 
@@ -15,7 +15,7 @@ public class HashUtils {
 			c[i] = ch[random.nextInt(ch.length)];
 		}
 
-		return hash.concat(new String(c)).concat("WIN");
+		return hash.concat(new String(c)).concat("BETS");
 	}
 
 }

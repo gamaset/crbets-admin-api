@@ -3,6 +3,7 @@ package com.gamaset.crbetadmin.service;
 import static com.gamaset.crbetadmin.infra.log.LogEvent.create;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -68,6 +69,27 @@ public class CompetitionService {
 			throw new BusinessException(e);
 		}
 		
+	}
+
+
+	public void changeStatusForAllCompetitions(Long eventTypeId, boolean status) {
+
+		try {
+			LOG_ACTION.error(create("Atualizando Status das competicoes por Tipo de Evento").add("eventTypeId", eventTypeId).add("status", status).build());
+			
+			List<CompetitionModel> competitions = competitionRepository.findByEventTypeId(eventTypeId);
+			
+			if(Objects.nonNull(competitions)) {
+				competitions.stream().forEach(c -> {
+					c.setActive(status);
+					competitionRepository.save(c);
+				});
+			}
+			
+		} catch (Exception e) {
+			LOG_ERROR.error(create("Erro ao Atualizar a Competicao").build());
+			throw new BusinessException(e);
+		}
 	}
 	
 }
