@@ -36,12 +36,12 @@ public class EventTypeModel extends Auditable {
 		this.id = id;
 	}
 
-	public String getName() {
+	public String getDescription() {
 		return description;
 	}
 
-	public void setName(String name) {
-		this.description = name;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public boolean isActive() {

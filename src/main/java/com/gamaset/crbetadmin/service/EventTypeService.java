@@ -38,7 +38,7 @@ public class EventTypeService {
 		List<EventTypeModel> response = null;
 		
 		try {
-			LOG_ACTION.error(create("Listando Tipos de Evento").build());
+			LOG_ACTION.info(create("Listando Tipos de Evento").build());
 			
 			response = (List<EventTypeModel>) eventTypeRepository.findAllByOrderByIdAsc();
 			
@@ -53,7 +53,7 @@ public class EventTypeService {
 	@Transactional
 	public void updateStatus(Long eventTypeId, FlagBooleanUpdateStatusRequest request) {
 		try {
-			LOG_ACTION.error(create("Atualizando Status do Tipo de Evento").add("eventTypeId", eventTypeId).add("status", request.isStatus()).build());
+			LOG_ACTION.info(create("Atualizando Status do Tipo de Evento").add("eventTypeId", eventTypeId).add("status", request.isStatus()).build());
 			
 			Optional<EventTypeModel> eventTypeOpt = eventTypeRepository.findById(eventTypeId);
 			
@@ -73,5 +73,5 @@ public class EventTypeService {
 			throw new BusinessException(e);
 		}
 	}
-	
+
 }

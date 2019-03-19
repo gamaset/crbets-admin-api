@@ -35,7 +35,7 @@ public class CompetitionService {
 		List<CompetitionModel> response = null;
 		
 		try {
-			LOG_ACTION.error(create("Listando Competicoes").build());
+			LOG_ACTION.info(create("Listando Competicoes").build());
 			
 			response = (List<CompetitionModel>) competitionRepository.findAllByOrderByEventTypeIdAscDescriptionAsc();
 			
@@ -50,7 +50,7 @@ public class CompetitionService {
 
 	public void updateStatus(Long competitionId, FlagBooleanUpdateStatusRequest request) {
 		try {
-			LOG_ACTION.error(create("Atualizando Status da Competicao").add("competitionId", competitionId).add("status", request.isStatus()).build());
+			LOG_ACTION.info(create("Atualizando Status da Competicao").add("competitionId", competitionId).add("status", request.isStatus()).build());
 			
 			Optional<CompetitionModel> competitionOpt = competitionRepository.findById(competitionId);
 			
@@ -75,7 +75,7 @@ public class CompetitionService {
 	public void changeStatusForAllCompetitions(Long eventTypeId, boolean status) {
 
 		try {
-			LOG_ACTION.error(create("Atualizando Status das competicoes por Tipo de Evento").add("eventTypeId", eventTypeId).add("status", status).build());
+			LOG_ACTION.info(create("Atualizando Status das competicoes por Tipo de Evento").add("eventTypeId", eventTypeId).add("status", status).build());
 			
 			List<CompetitionModel> competitions = competitionRepository.findByEventTypeId(eventTypeId);
 			
