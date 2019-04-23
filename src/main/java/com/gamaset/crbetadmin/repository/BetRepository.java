@@ -8,6 +8,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.gamaset.crbetadmin.repository.entity.BetModel;
+import com.gamaset.crbetadmin.repository.entity.BetStatusEnum;
 
 @Repository
 public interface BetRepository  extends PagingAndSortingRepository<BetModel, Long> {
@@ -19,6 +20,8 @@ public interface BetRepository  extends PagingAndSortingRepository<BetModel, Lon
 	List<BetModel> findByCustomerAgentIdOrderByCreateAtDesc(Long userAgentId);
 
 	Optional<BetModel> findByIdAndCustomerAgentId(Long betId, Long userAgentId);
+
+	List<BetModel> findByStatus(BetStatusEnum status);
 
 
 }

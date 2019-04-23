@@ -11,6 +11,8 @@ import javax.persistence.Table;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.gamaset.crbetadmin.schema.request.CustomerRequest;
+
 @Entity
 @Table(name = "cliente")
 public class CustomerModel extends Auditable {
@@ -20,9 +22,14 @@ public class CustomerModel extends Auditable {
 	@Column(name = "id_cliente")
 	private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "id_usuario_fk", nullable = false)
-	private UserModel user;
+	@Column(name = "desc_nome", nullable = false)
+	private String name;
+
+	@Column(name = "email", nullable = false, unique = true)
+	private String email;
+
+	@Column(name = "cpf", nullable = false, unique = false)
+	private String taxId;
 
 	@ManyToOne
 	@JoinColumn(name = "id_usuario_agente_fk", nullable = false)
@@ -31,17 +38,35 @@ public class CustomerModel extends Auditable {
 	public CustomerModel() {
 	}
 	
-	public CustomerModel(UserModel userCreated, UserModel agentModel) {
-		this.user = userCreated;
+	public CustomerModel(CustomerRequest request, UserModel agentModel) {
+		setEmail(request.getEmail());
+		setName(request.getName());
+		setTaxId(request.getTaxId());
 		this.agent = agentModel;
 	}
 
-	public UserModel getUser() {
-		return user;
+	public String getName() {
+		return name;
 	}
 
-	public void setUser(UserModel user) {
-		this.user = user;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getTaxId() {
+		return taxId;
+	}
+
+	public void setTaxId(String taxId) {
+		this.taxId = taxId;
 	}
 
 	public Long getId() {

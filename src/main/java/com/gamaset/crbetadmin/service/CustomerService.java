@@ -2,10 +2,10 @@ package com.gamaset.crbetadmin.service;
 
 import static com.gamaset.crbetadmin.infra.log.LogEvent.create;
 import static com.gamaset.crbetadmin.infra.utils.CPFValidator.isValid;
+import static com.gamaset.crbetadmin.infra.utils.UserProfileUtils.isAdmin;
 import static java.util.Objects.requireNonNull;
 import static org.springframework.util.Assert.isTrue;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,13 +20,13 @@ import com.gamaset.crbetadmin.infra.configuration.security.UserPrinciple;
 import com.gamaset.crbetadmin.infra.exception.BusinessException;
 import com.gamaset.crbetadmin.infra.exception.NotFoundException;
 import com.gamaset.crbetadmin.infra.log.LogEvent;
+import com.gamaset.crbetadmin.infra.utils.UserProfileUtils;
 import com.gamaset.crbetadmin.repository.AgentRepository;
 import com.gamaset.crbetadmin.repository.CustomerRepository;
 import com.gamaset.crbetadmin.repository.entity.AgentModel;
+import com.gamaset.crbetadmin.repository.entity.BetModel;
 import com.gamaset.crbetadmin.repository.entity.CustomerModel;
-import com.gamaset.crbetadmin.repository.entity.UserModel;
 import com.gamaset.crbetadmin.schema.request.CustomerRequest;
-import com.gamaset.crbetadmin.schema.request.SignUpRequest;
 
 @Service
 public class CustomerService {
@@ -47,7 +47,20 @@ public class CustomerService {
 	}
 
 	public List<CustomerModel> list() {
-		return (List<CustomerModel>) customerRepository.findAll();
+		
+		UserPrinciple principle = (UserPrinciple) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		List<CustomerModel> customers = null;
+		if (isAdmin(principle)) {
+			customers = (List<CustomerModel>) customerRepository.findAll();
+		} else if (UserProfileUtils.isAdminOrAgent(principle)) {
+			customers = (List<CustomerModel>) customerRepository.findByAgentId(principle.getId());
+		} else {
+			LOG_ERROR.error(create("Perfil de Usuario não pode acessar esses dados.").build());
+			throw new BusinessException("Perfil de Usuario não pode acessar esses dados.");
+		}
+		
+		return customers;
 	}
 
 	@Transactional
@@ -60,15 +73,13 @@ public class CustomerService {
 			
 			UserPrinciple principle = (UserPrinciple) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			
-			UserModel userCreated = authService.signUp(new SignUpRequest(request, "CUSTOMER"));
-			
 			Optional<AgentModel> agentOpt = agentRepository.findByUserId(principle.getId());
 			if(!agentOpt.isPresent()) {
 				LOG_ERROR.error(create("Agente não encontrado").add("agentId", principle.getId()).build());
 				throw new NotFoundException("Agente não encontrado");
 			}
 			
-			return customerRepository.save(new CustomerModel(userCreated, agentOpt.get().getUser()));
+			return customerRepository.save(new CustomerModel(request, agentOpt.get().getUser()));
 			
 		} catch (BusinessException e) {
 			LOG_ERROR.error(create("Erro ao criar o Cliente").add(e).build());
@@ -92,7 +103,6 @@ public class CustomerService {
 			requireNonNull(request.getTaxId(), "CPF não pode ser nulo");
 			isTrue(isValid(request.getTaxId()), "CPF Inválido");
 			request.setPassword("");
-			request.setUsername(String.valueOf(new Date().getTime()));
 		}catch (NullPointerException | IllegalArgumentException e) {
 			throw new BusinessException(e.getMessage());
 		}

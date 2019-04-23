@@ -1,16 +1,24 @@
-spring.profiles.active: dev
+#spring.profiles.active: prod
 spring:
   application:
-    name: crbet-admin-api
+    name: crbet-admin
   dataSource:
     url: "jdbc:mysql://localhost:3306/crbet_admin?useTimezone=true&serverTimezone=America/Sao_Paulo"
-    username: root
-    password: root
+    username: 'root'
+    password: '#Root123'
     driver-class-name: com.mysql.cj.jdbc.Driver
+    testWhileIdle: true
+    validationQuery: SELECT 1
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 5
+      maximum-pool-size: 12
+      idle-timeout: 300000
+      max-lifetime: 1200000
   jpa:
     database-platform: org.hibernate.dialect.MySQL5Dialect
-    hibernate.ddl-auto: update
-    generate-ddl: true
+#    hibernate.ddl-auto: update
+#    generate-ddl: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
@@ -22,8 +30,7 @@ server:
 #  sessions: NEVER
 logging:
   config: classpath:log4j2.xml
-  
-
+ 
 # app params
 betwin:
   security:
@@ -31,7 +38,7 @@ betwin:
     jwtExpiration: 86400
   config:
     commissionPercent: 0.10
-    
+
 ---
 spring:
   profiles: dev

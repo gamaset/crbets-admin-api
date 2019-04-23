@@ -12,10 +12,6 @@ public class SignUpRequest {
 	private String name;
 
 	@NotBlank
-	@Size(min = 3, max = 50)
-	private String username;
-
-	@NotBlank
 	@Size(max = 60)
 	@Email
 	private String email;
@@ -38,7 +34,6 @@ public class SignUpRequest {
 		setName(request.getName());
 		setPassword(request.getPassword());
 		setTaxId(request.getTaxId());
-		setUsername(request.getUsername());
 		Set<String> roles = new HashSet<>();
 		if (Objects.isNull(rolename)) {
 			roles.add("CUSTOMER");
@@ -54,14 +49,6 @@ public class SignUpRequest {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
 	}
 
 	public String getEmail() {

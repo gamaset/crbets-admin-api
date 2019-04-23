@@ -25,6 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import com.gamaset.crbetadmin.client.crbetsportal.CrbetsPortalClient;
+import com.gamaset.crbetadmin.client.crbetsportal.schema.CompetitionEventsResponse;
+import com.gamaset.crbetadmin.client.crbetsportal.schema.EventSchema;
+import com.gamaset.crbetadmin.client.crbetsportal.schema.GenericResponse;
 import com.gamaset.crbetadmin.infra.configuration.security.UserPrinciple;
 import com.gamaset.crbetadmin.infra.exception.BusinessException;
 import com.gamaset.crbetadmin.infra.exception.NotFoundException;
@@ -35,6 +39,7 @@ import com.gamaset.crbetadmin.repository.BetRepository;
 import com.gamaset.crbetadmin.repository.CompetitionRepository;
 import com.gamaset.crbetadmin.repository.CustomerRepository;
 import com.gamaset.crbetadmin.repository.EventRepository;
+import com.gamaset.crbetadmin.repository.MarketRepository;
 import com.gamaset.crbetadmin.repository.entity.BetHistoryModel;
 import com.gamaset.crbetadmin.repository.entity.BetModel;
 import com.gamaset.crbetadmin.repository.entity.BetStatusEnum;
@@ -58,16 +63,18 @@ public class BetService {
 	private EventRepository eventRepository;
 	private CustomerRepository customerRepository;
 	private CompetitionRepository competitionRepository;
+	private CrbetsPortalClient crbetsPortalClient;
 	private WalletBalanceService balanceService;
 
 	@Autowired
 	public BetService(BetRepository betRepository, BetHistoryRepository betHistoryRepository,
-			EventRepository eventRepository, CustomerRepository cRepository, CompetitionRepository competitionRepository, 
-			WalletBalanceService balanceHistoryService) {
+			EventRepository eventRepository, CustomerRepository cRepository, CrbetsPortalClient crbetsPortalClient,
+			CompetitionRepository competitionRepository, WalletBalanceService balanceHistoryService) {
 		this.betRepository = betRepository;
 		this.betHistoryRepository = betHistoryRepository;
 		this.eventRepository = eventRepository;
 		this.customerRepository = cRepository;
+		this.crbetsPortalClient = crbetsPortalClient;
 		this.competitionRepository = competitionRepository;
 		this.balanceService = balanceHistoryService;
 	}
@@ -84,19 +91,23 @@ public class BetService {
 
 			validateInsert(request);
 
-			LOG_ACTION.info(create("Criando Aposta").add("taxId", request.getTaxId()).add("betValue", request.getBetValue()).build());
+			LOG_ACTION.info(create("Criando Aposta").add("taxId", request.getTaxId())
+					.add("betValue", request.getBetValue()).build());
 
-			Optional<CustomerModel> customerOpt = customerRepository.findByUserTaxId(request.getTaxId());
+			Optional<CustomerModel> customerOpt = customerRepository.findByTaxId(request.getTaxId());
 			if (!customerOpt.isPresent()) {
 				LOG_ERROR.error(create("Cliente não encontrado").add("cpf", request.getTaxId()).build());
 				throw new NotFoundException("Cliente não encontrado");
 			}
 
+			verifyIdEventsAvailable(request.getEvents());
+			
 			BetModel bet = new BetModel(request, customerOpt.get(), commissionPercentConfig);
 
 			BetModel betCreated = betRepository.save(bet);
 			for (EventModel event : request.getEvents()) {
 				event.setBet(betCreated);
+				System.out.println("Competicao: " + event.getCompetition().getId());
 				event.setCompetition(competitionRepository.findById(event.getCompetition().getId()).get());
 				eventRepository.save(event);
 			}
@@ -107,6 +118,20 @@ public class BetService {
 		} catch (BusinessException e) {
 			LOG_ERROR.error(create(e.getMessage()).build());
 			throw e;
+		}
+	}
+
+	private void verifyIdEventsAvailable(List<EventModel> events) {
+		GenericResponse<CompetitionEventsResponse> listEventsAvailable = crbetsPortalClient.listEventsAvailable();
+		for (EventModel eventModel : events) {
+			for (CompetitionEventsResponse competitionEvents : listEventsAvailable.getData()) {
+				for (EventSchema eventPortal : competitionEvents.getEvents()) {
+					if(eventModel.getEventId().equals(Long.parseLong(eventPortal.getId()))){
+						return;
+					}
+				}
+			}
+			throw new BusinessException(String.format("Evento %s não está disponivel", eventModel.getEventName()));
 		}
 	}
 
@@ -179,6 +204,27 @@ public class BetService {
 		}
 	}
 
+	@Transactional
+	public void updateStatusBetWithoutSecurity(Long betId, BetUpdateStatusRequest request) {
+		
+		Optional<BetModel> betOpt = betRepository.findById(betId);
+		
+		if (betOpt.isPresent()) {
+			BetModel betEntity = betOpt.get();
+			Long agentId = betEntity.getCustomer().getAgent().getId();
+			BetStatusEnum betStatusRequest = valueOf(request.getStatus()).get();
+			
+			if (!betStatusRequest.equals(betEntity.getStatus())) {
+				executeFlowChangeStatus(betEntity.getStatus(), betStatusRequest, betEntity, agentId);
+			}
+			
+		} else {
+			LOG_ERROR.error(
+					create("Aposta não encontrada").add("betId", betId).build());
+			throw new BusinessException(String.format("Aposta não encontrada ID %s", betId));
+		}
+	}
+
 	/**
 	 * Busca detalhe da aposta por ID
 	 * 
@@ -207,10 +253,11 @@ public class BetService {
 		if (betOpt.isPresent()) {
 			response = new BetResponse(betOpt.get(), eventRepository.findByBetId(betId));
 		} else {
-			LOG_ERROR.error(create("Aposta não encontrada").add("betId", betId).add("userId", principle.getId()).build());
+			LOG_ERROR.error(
+					create("Aposta não encontrada").add("betId", betId).add("userId", principle.getId()).build());
 			throw new BusinessException(String.format("Aposta não encontrada ID %s", betId));
 		}
-		
+
 		return response;
 	}
 
@@ -224,36 +271,60 @@ public class BetService {
 			isTrue(request.getEvents().size() >= 2, "Lista de Eventos deve conter no minimo 2 eventos");
 			requireNonNull(request.getEvents(), "Lista de Eventos não pode ser nulo");
 		} catch (NullPointerException | IllegalArgumentException e) {
-			throw new BusinessException(e);
+			throw new BusinessException(e.getMessage());
 		}
 
 	}
 
-	private void executeFlowChangeStatus(BetStatusEnum actual, BetStatusEnum newStatus, BetModel betEntity, Long agentUserId) {
-		
-		if(actual.equals(BetStatusEnum.LOSE) || actual.equals(BetStatusEnum.WON)) {
+	private void executeFlowChangeStatus(BetStatusEnum actual, BetStatusEnum newStatus, BetModel betEntity,
+			Long agentUserId) {
+
+		if (actual.equals(BetStatusEnum.LOSE) || actual.equals(BetStatusEnum.WON)) {
 			LOG_ERROR.error(create("Não é possivel alterar o status da aposta, pois ela já foi encerrada").build());
 			throw new BusinessException("Não é possivel alterar o status da aposta, pois ela já foi encerrada.");
 		}
-		
+
 		if (actual.equals(REGISTERING) && newStatus.equals(PENDING)) {
 			LOG_ERROR.error(create("Não é possivel alterar o status da aposta, pois ela já foi efetivada").build());
 			throw new BusinessException("Não é possivel alterar o status da aposta, pois ela já foi efetivada.");
 		}
 
-		if (actual.equals(REGISTERING) && (newStatus.equals(LOSE) || newStatus.equals(CANCELLED))) {
+		if (actual.equals(PENDING) && newStatus.equals(CANCELLED)) {
+			betEntity.setStatus(newStatus);
+			BetModel betModel = betRepository.save(betEntity);
+			betHistoryRepository.save(new BetHistoryModel(betModel, betModel.getStatus()));
+			return;
+		}
+
+		if (actual.equals(REGISTERING) && (newStatus.equals(LOSE))) {
 			betEntity.setStatus(newStatus);
 			BetModel betModel = betRepository.save(betEntity);
 			betHistoryRepository.save(new BetHistoryModel(betModel, betModel.getStatus()));
 			return;
 		}
 		
-		if ((actual.equals(PENDING) && newStatus.equals(REGISTERING)) || (actual.equals(REGISTERING) && newStatus.equals(WON))) {
+		if (actual.equals(REGISTERING) && (newStatus.equals(CANCELLED))) {
 			betEntity.setStatus(newStatus);
 			BetModel betModel = betRepository.save(betEntity);
 			betHistoryRepository.save(new BetHistoryModel(betModel, betModel.getStatus()));
 			balanceService.updateByBetStaus(agentUserId, newStatus, betModel);
+			return;
 		}
-		
+
+		if ((actual.equals(PENDING) && newStatus.equals(REGISTERING))
+				|| (actual.equals(REGISTERING) && newStatus.equals(WON))) {
+			betEntity.setStatus(newStatus);
+			BetModel betModel = betRepository.save(betEntity);
+			betHistoryRepository.save(new BetHistoryModel(betModel, betModel.getStatus()));
+			balanceService.updateByBetStaus(agentUserId, newStatus, betModel);
+			if(newStatus.equals(REGISTERING)) {
+				List<EventModel> events = eventRepository.findByBetId(betModel.getId());
+				events.forEach(e -> {
+					e.getMarket().getPrice().setStatus(REGISTERING);
+					eventRepository.save(e);
+				});
+			}
+		}
 	}
+
 }

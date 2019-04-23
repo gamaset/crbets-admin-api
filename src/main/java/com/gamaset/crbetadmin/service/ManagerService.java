@@ -65,7 +65,6 @@ public class ManagerService {
 			requireNonNull(request.getPassword(), "Senha não pode ser nulo");
 			requireNonNull(request.getTaxId(), "CPF não pode ser nulo");
 			isTrue(isValid(request.getTaxId()), "CPF Inválido");
-			requireNonNull(request.getUsername(), "Nome de Usuario não pode ser nulo");
 		} catch (NullPointerException | IllegalArgumentException e) {
 			throw new BusinessException(e.getMessage());
 		}

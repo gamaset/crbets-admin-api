@@ -10,6 +10,7 @@ public class WalletBalanceSchema {
 
 	private Long id;
 	private BigDecimal budget;
+	private BigDecimal percentComission;
 	private BigDecimal totalCommissionAmount;
 	private BigDecimal totalAmountPaid;
 	private BigDecimal totalAmountReceived;
@@ -32,6 +33,7 @@ public class WalletBalanceSchema {
 		setWallet(new WalletSchema(walletBalance.getWallet()));
 		setLastDateUpdate(walletBalance.getUpdateAt());
 		setCreatedDate(walletBalance.getCreateAt());
+		setPercentComission(walletBalance.getPercentComission());
 	}
 
 	public LocalDateTime getLastDateUpdate() {
@@ -96,6 +98,14 @@ public class WalletBalanceSchema {
 
 	public void setCreatedDate(LocalDateTime createdDate) {
 		this.createdDate = createdDate;
+	}
+
+	public BigDecimal getPercentComission() {
+		return percentComission;
+	}
+
+	public void setPercentComission(BigDecimal percentComission) {
+		this.percentComission = percentComission;
 	}
 
 }

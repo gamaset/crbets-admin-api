@@ -10,8 +10,7 @@ import com.gamaset.crbetadmin.repository.entity.UserModel;
 @Repository
 public interface UserRepository extends JpaRepository<UserModel, Long> {
 
-	Optional<UserModel> findByUsername(String username);
-    boolean existsByUsername(String username);
+	Optional<UserModel> findByEmail(String email);
     boolean existsByEmail(String email);
     
 }

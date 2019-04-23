@@ -3,6 +3,7 @@ package com.gamaset.crbetadmin.service;
 import static com.gamaset.crbetadmin.infra.log.LogEvent.create;
 import static com.gamaset.crbetadmin.infra.utils.CalculatorUtils.getDifference;
 import static com.gamaset.crbetadmin.infra.utils.CalculatorUtils.getSum;
+import static com.gamaset.crbetadmin.repository.entity.BetStatusEnum.CANCELLED;
 import static com.gamaset.crbetadmin.repository.entity.BetStatusEnum.REGISTERING;
 import static com.gamaset.crbetadmin.repository.entity.BetStatusEnum.WON;
 import static com.gamaset.crbetadmin.repository.entity.WalletStatusEnum.OPEN;
@@ -74,6 +75,14 @@ public class WalletBalanceService {
 		if(betStaus.equals(WON)) {
 			balance.setTotalAmountPaid(getSum(balance.getTotalAmountPaid(), betModel.getProfitValue()));
 			balance.setTotalCommissionAmount(getSum(balance.getTotalCommissionAmount(), betModel.getCommissionValue()));
+			WalletBalanceModel balanceActual = walletBalanceRepository.save(balance);
+			walletBalanceTransactionService.createTransactionToBetWon(betModel.getProfitValue(), betModel.getCommissionValue(), balanceActual);
+			generateHistory(balanceBefore, balanceActual);
+		}	
+		
+		if(betStaus.equals(CANCELLED)) {
+			balance.setBudget(getSum(betModel.getBetValue(), balance.getBudget()));
+			balance.setTotalAmountReceived(getDifference(betModel.getBetValue(), balance.getTotalAmountReceived()));
 			WalletBalanceModel balanceActual = walletBalanceRepository.save(balance);
 			walletBalanceTransactionService.createTransactionToBetWon(betModel.getProfitValue(), betModel.getCommissionValue(), balanceActual);
 			generateHistory(balanceBefore, balanceActual);

@@ -46,7 +46,7 @@ public class AuthService {
 	public SignInResponse authenticateUser(LoginForm loginRequest) {
 
 		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+				new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -56,10 +56,9 @@ public class AuthService {
 	}
 
 	public UserModel signUp(SignUpRequest signUpRequest) {
-		verifyIfUsernameAlreadyTaken(signUpRequest.getUsername());
 		verifyIfEmailAlreadyUse(signUpRequest.getEmail());
 
-		UserModel user = new UserModel(signUpRequest.getName(), signUpRequest.getUsername(), signUpRequest.getEmail(),
+		UserModel user = new UserModel(signUpRequest.getName(), signUpRequest.getEmail(),
 				encoder.encode(signUpRequest.getPassword()), signUpRequest.getTaxId());
 
 		Set<String> strRoles = signUpRequest.getRole();
@@ -106,12 +105,6 @@ public class AuthService {
 		}
 
 		return roles;
-	}
-
-	private void verifyIfUsernameAlreadyTaken(String username) {
-		if (userRepository.existsByUsername(username)) {
-			throw new UserAlreadyTakenException("Fail -> Username is already taken!");
-		}
 	}
 
 	private void verifyIfEmailAlreadyUse(String email) {

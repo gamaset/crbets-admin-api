@@ -13,14 +13,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password", "roles"})
 @Entity
-@Table(name = "usuario", uniqueConstraints = { @UniqueConstraint(columnNames = { "username" }),
-		@UniqueConstraint(columnNames = { "email" }), @UniqueConstraint(columnNames = { "cpf" }) })
+@Table(name = "usuario", uniqueConstraints = { @UniqueConstraint(columnNames = { "email" }), @UniqueConstraint(columnNames = { "cpf" }) })
 public class UserModel extends Auditable {
 
 	@Id
@@ -31,11 +31,11 @@ public class UserModel extends Auditable {
 	@Column(name = "desc_nome", nullable = false)
 	private String name;
 
-	@Column(name = "email", nullable = false, unique = false)
-	private String email;
-
-	@Column(name = "username", nullable = false, unique = true)
+	@Transient
 	private String username;
+
+	@Column(name = "email", nullable = false, unique = true)
+	private String email;
 
 	@Column(name = "cpf", nullable = false, unique = false)
 	private String taxId;
@@ -50,9 +50,8 @@ public class UserModel extends Auditable {
 	public UserModel() {
 	}
 
-	public UserModel(String name, String username, String email, String password, String taxId) {
+	public UserModel(String name, String email, String password, String taxId) {
         this.name = name;
-        this.username = username;
         this.email = email;
         this.password = password;
         this.taxId = taxId;
@@ -62,20 +61,21 @@ public class UserModel extends Auditable {
 		this.id = userId;
 	}
 
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	public Long getId() {
 		return id;
 	}
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String nickname) {
-		this.username = nickname;
 	}
 
 	public String getTaxId() {

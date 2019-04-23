@@ -102,7 +102,7 @@ public class AgentService {
 			LOG_ACTION.info(create("Cadastrando Carteira do Agente").add("user", principle.getId()).build());
 			
 			WalletModel walletCreated = walletRepository.save(new WalletModel(agentCreated));
-			walletBalanceRepository.save(new WalletBalanceModel(walletCreated, request.getBudget()));
+			walletBalanceRepository.save(new WalletBalanceModel(walletCreated, request.getBudget(), request.getPercentComission()));
 			
 		} catch (BusinessException e) {
 			LOG_ERROR.error(create("Erro ao criar o Agente").add(e).build());
@@ -161,7 +161,6 @@ public class AgentService {
 			requireNonNull(request.getPassword(), "Senha não pode ser nulo");
 			requireNonNull(request.getTaxId(), "CPF não pode ser nulo");
 			isTrue(isValid(request.getTaxId()), "CPF Inválido");
-			requireNonNull(request.getUsername(), "Nome de Usuario não pode ser nulo");
 		}catch (NullPointerException | IllegalArgumentException e) {
 			throw new BusinessException(e.getMessage());
 		}

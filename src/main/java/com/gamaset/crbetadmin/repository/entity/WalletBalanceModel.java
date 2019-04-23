@@ -26,6 +26,9 @@ public class WalletBalanceModel extends Auditable {
 	@Column(name = "valor_orcamento", nullable = false)
 	private BigDecimal budget;
 
+	@Column(name = "percentual_comissao", nullable = false)
+	private BigDecimal percentComission;
+
 	@Column(name = "valor_total_comissao", nullable = false)
 	private BigDecimal totalCommissionAmount;
 
@@ -45,9 +48,10 @@ public class WalletBalanceModel extends Auditable {
 	public WalletBalanceModel() {
 	}
 
-	public WalletBalanceModel(WalletModel wallet, BigDecimal initialBudget) {
+	public WalletBalanceModel(WalletModel wallet, BigDecimal initialBudget, BigDecimal percentComission) {
 		setWallet(wallet);
 		setBudget(initialBudget);
+		setPercentComission(percentComission);
 		setTotalAmountReceived(BigDecimal.ZERO);
 		setTotalAmountPaid(BigDecimal.ZERO);
 		setTotalCommissionAmount(BigDecimal.ZERO);
@@ -107,6 +111,14 @@ public class WalletBalanceModel extends Auditable {
 
 	public void setHistories(List<WalletBalanceHistoryModel> histories) {
 		this.histories = histories;
+	}
+
+	public BigDecimal getPercentComission() {
+		return percentComission;
+	}
+
+	public void setPercentComission(BigDecimal percentComission) {
+		this.percentComission = percentComission;
 	}
 
 }

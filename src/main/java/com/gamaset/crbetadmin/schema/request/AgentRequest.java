@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public class AgentRequest extends UserRequest {
 
 	private BigDecimal budget;
+	private BigDecimal percentComission;
 
 	public BigDecimal getBudget() {
 		return budget;
@@ -12,6 +13,14 @@ public class AgentRequest extends UserRequest {
 
 	public void setBudget(BigDecimal budget) {
 		this.budget = budget;
+	}
+
+	public BigDecimal getPercentComission() {
+		return percentComission;
+	}
+
+	public void setPercentComission(BigDecimal percentComission) {
+		this.percentComission = percentComission;
 	}
 
 }

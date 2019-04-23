@@ -1,5 +1,6 @@
 package com.gamaset.crbetadmin.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -10,8 +11,10 @@ import com.gamaset.crbetadmin.repository.entity.CustomerModel;
 @Repository
 public interface CustomerRepository extends PagingAndSortingRepository<CustomerModel, Long> {
 
-	Optional<CustomerModel> findByUserId(Long id);
+	Optional<CustomerModel> findById(Long id);
 
-	Optional<CustomerModel> findByUserTaxId(String taxId);
+	Optional<CustomerModel> findByTaxId(String taxId);
+
+	List<CustomerModel> findByAgentId(Long userId);
 
 }

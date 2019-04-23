@@ -2,6 +2,8 @@ package com.gamaset.crbetadmin.repository.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,7 +26,15 @@ public class MarketSelectionModel {
 
 	@Column(name = "odd", nullable = false)
 	private Double odd;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "status", nullable = false)
+	private BetStatusEnum status;
 
+	public MarketSelectionModel() {
+		this.status = BetStatusEnum.PENDING;
+	}
+	
 	public Long getSelectionId() {
 		return selectionId;
 	}
@@ -49,4 +59,21 @@ public class MarketSelectionModel {
 		this.odd = odd;
 	}
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public BetStatusEnum getStatus() {
+		return status;
+	}
+
+	public void setStatus(BetStatusEnum status) {
+		this.status = status;
+	}
+
+	
 }
